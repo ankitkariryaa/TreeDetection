@@ -16,7 +16,7 @@ class StaticGenerator():
         self.file_prefix = file_prefix
         self.annotation_file_prefix = annotation_file_prefix
         files = os.listdir(base_dir)
-        self.dataset_size = len(files)
+        self.dataset_size = len(files) // 2
         # self.read_files(file_suffix, annotation_file_suffix)
         self.split_dataset(test_ratio, validation_ratio)
 
@@ -68,8 +68,8 @@ class StaticGenerator():
         dt = self.dataset_idx(dataset)
         while True:
             idx = np.random.choice(dt, replace=False)
-            input_img = [self.open_image('{}_{}.jpg'.format((self.file_prefix, idx)))]
-            mask = [self.open_image('{}_{}.jpg'.format((self.annotation_file_prefix, idx)))]
+            input_img = [self.open_image('{}_{}.jpg'.format(self.file_prefix, idx))]
+            mask = [self.open_image('{}_{}.jpg'.format(self.annotation_file_prefix, idx))]
             yield input_img, mask
 
     def dataset_idx(self, dataset):
