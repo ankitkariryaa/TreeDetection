@@ -30,7 +30,7 @@ class StaticGenerator():
         #Does it work then there are more than 1 or 3 channels
     def open_image(self, filename):
         x = Image.open(os.path.join(self.base_dir, filename))
-        im = np.array(x)/255.0
+        im = np.array(x) / 255.0
         if (im.ndim == 2):
             im = np.expand_dims(im, -1)
         return im
@@ -72,8 +72,8 @@ class StaticGenerator():
             response_maps = []
             while True:
                 idx = np.random.choice(dt, replace=False)
-                input_img = self.open_image('{}_{}.jpg'.format(self.file_prefix, idx))
-                mask = self.open_image('{}_{}.jpg'.format(self.annotation_file_prefix, idx))
+                input_img = self.open_image('{}_{}.png'.format(self.file_prefix, idx))
+                mask = self.open_image('{}_{}.png'.format(self.annotation_file_prefix, idx))
                 image_batch.append(input_img)
                 response_maps.append(mask)
                 if len(image_batch) == self.batch_size:
