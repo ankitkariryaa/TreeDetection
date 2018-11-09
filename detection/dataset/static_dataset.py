@@ -13,8 +13,8 @@ class StaticGenerator():
 
     def __init__(self, base_dir, file_prefix, annotation_file_prefix, test_ratio, validation_ratio, horizontal_flip=False):
         self.base_dir = base_dir
-        self.file_suffix = file_prefix
-        self.annotation_file_suffix = annotation_file_prefix
+        self.file_prefix = file_prefix
+        self.annotation_file_prefix = annotation_file_prefix
         files = os.listdir(base_dir)
         self.dataset_size = len(files)
         # self.read_files(file_suffix, annotation_file_suffix)
