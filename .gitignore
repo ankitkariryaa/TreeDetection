@@ -1,0 +1,14 @@
+# python
+*.pyc
+*.ipynb
+*.egg-info/
+.
+# general
+*.*~
+.#.*
+build/
+images/
+quality_checks/*
+resources/*
+*.png
+.idea/
