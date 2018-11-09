@@ -61,20 +61,17 @@ class StaticGenerator():
         logger.info('Total dataset size:{}, training:{}, validation:{}, test:{}', self.dataset_size,
                     len(self.training_idx), len(self.validation_idx), len(self.testing_idx))
 
-    def static_generator(self, batch_size, dataset='training', sampling_type='random'):
+    def static_generator(self, dataset='training', sampling_type='random'):
         while True:
             image_batch = []
             response_maps = []
             idx = self.dataset_idx(dataset)
-            while True:
-                patch_id = np.random.randint(0, len(idx))
-                image_batch.append(self.input_img[patch_id])
-                response_maps.append(self.masks[patch_id])
-                if len(image_batch) == batch_size:
-                    break
+            patch_id = np.random.randint(0, len(idx))
+            image_batch.append(self.input_img[patch_id])
+            response_maps.append(self.masks[patch_id])
 
             # logger.info('image batch shape:{}, dataset:{}, batch_size:{}', image_batch.shape, dataset, batch_size)
-            yield np.stack(image_batch), np.stack(response_maps)
+            yield image_batch, response_maps
 
     def dataset_idx(self, dataset):
         if dataset == 'testing':
