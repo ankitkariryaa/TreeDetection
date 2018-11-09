@@ -36,7 +36,7 @@ class FCNMaskGenerator(DatasetGenerator):
 
             image_batch = np.array(image_batch)
             # logger.info('image batch shape:{}, dataset:{}, batch_size:{}', image_batch.shape, dataset, batch_size)
-            yield ({'input_1': np.array(image_batch)}, {'class_out': np.array(response_maps)})
+            yield (np.array(image_batch), np.array(response_maps))
 
 
 if __name__ == '__main__':
