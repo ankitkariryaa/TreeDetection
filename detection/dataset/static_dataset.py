@@ -11,7 +11,8 @@ class StaticGenerator():
     Data set generator for generating training and test data for fully connected type networks.
     '''
 
-    def __init__(self, base_dir, file_prefix, annotation_file_prefix, test_ratio, validation_ratio, horizontal_flip=False):
+    def __init__(self, batch_size, base_dir, file_prefix, annotation_file_prefix, test_ratio, validation_ratio, horizontal_flip=False):
+        self.batch_size = batch_size
         self.base_dir = base_dir
         self.file_prefix = file_prefix
         self.annotation_file_prefix = annotation_file_prefix
@@ -67,10 +68,17 @@ class StaticGenerator():
     def static_generator(self, dataset='training'):
         dt = self.dataset_idx(dataset)
         while True:
-            idx = np.random.choice(dt, replace=False)
-            input_img = [self.open_image('{}_{}.jpg'.format(self.file_prefix, idx))]
-            mask = [self.open_image('{}_{}.jpg'.format(self.annotation_file_prefix, idx))]
-            yield input_img, mask
+            image_batch = []
+            response_maps = []
+            while True:
+                idx = np.random.choice(dt, replace=False)
+                input_img = self.open_image('{}_{}.jpg'.format(self.file_prefix, idx))
+                mask = self.open_image('{}_{}.jpg'.format(self.annotation_file_prefix, idx))
+                image_batch.append(input_img)
+                response_maps.append(mask)
+                if len(image_batch) == self.batch_size:
+                    break
+            yield np.array(image_batch), np.array(response_maps)
 
     def dataset_idx(self, dataset):
         if dataset == 'testing':
