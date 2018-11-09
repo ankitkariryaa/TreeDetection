@@ -118,6 +118,6 @@ class Patch(object):
             ex = min(self.patch_size[0] - 1, x + s)
             ey = min(self.patch_size[1] - 1, y + s)
             m = np.maximum(img_mask[sx:ex + 1, sy:ey + 1, i], gaussian_k)
-            img_mask[sx:ex + 1, sy:ey + 1, i] = m
+            img_mask[sx:ex + 1, sy:ey + 1, i] = 1 #m
         return img_mask
 

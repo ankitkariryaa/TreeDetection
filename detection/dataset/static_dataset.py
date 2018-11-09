@@ -13,7 +13,11 @@ class StaticGenerator():
 
     def __init__(self, base_dir, file_suffix, annotation_file_suffix, test_ratio, validation_ratio, horizontal_flip=False):
         self.base_dir = base_dir
-        self.read_files(file_suffix, annotation_file_suffix)
+        self.file_suffix = file_suffix
+        self.annotation_file_suffix = annotation_file_suffix
+        files = os.listdir(base_dir)
+        self.dataset_size = len(files)
+        # self.read_files(file_suffix, annotation_file_suffix)
         self.split_dataset(test_ratio, validation_ratio)
 
 
@@ -35,7 +39,6 @@ class StaticGenerator():
         input_img = [fn for fn in all_files if fn.startswith(file_prefix)]
         input_img.sort(key=lambda x: self.filename_to_id(x))
         self.input_img = [self.open_image(c) for c in input_img]
-        self.dataset_size = len(self.input_img)
 
         masks = [fn for fn in all_files if fn.startswith(annotation_file_prefix)]
         masks.sort(key=lambda x: self.filename_to_id(x))
@@ -61,17 +64,13 @@ class StaticGenerator():
         logger.info('Total dataset size:{}, training:{}, validation:{}, test:{}', self.dataset_size,
                     len(self.training_idx), len(self.validation_idx), len(self.testing_idx))
 
-    def static_generator(self, dataset='training', sampling_type='random'):
+    def static_generator(self, dataset='training'):
+        dt = self.dataset_idx(dataset)
         while True:
-            image_batch = []
-            response_maps = []
-            idx = self.dataset_idx(dataset)
-            patch_id = np.random.randint(0, len(idx))
-            image_batch.append(self.input_img[patch_id])
-            response_maps.append(self.masks[patch_id])
-
-            # logger.info('image batch shape:{}, dataset:{}, batch_size:{}', image_batch.shape, dataset, batch_size)
-            yield image_batch, response_maps
+            idx = np.random.choice(dt, replace=False)
+            input_img = [self.open_image('{}_{}.jpg'.format((self.file_prefix, idx)))]
+            mask = [self.open_image('{}_{}.jpg'.format((self.annotation_file_prefix, idx)))]
+            yield input_img, mask
 
     def dataset_idx(self, dataset):
         if dataset == 'testing':
