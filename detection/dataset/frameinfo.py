@@ -111,7 +111,7 @@ class Patch(object):
             #TODO: At the moment we elimate the annotations on the edge of the image. We should include those as well.
             # if bbox[0] < x < self.patch_size[0] - bbox[0] and bbox[1] < y < self.patch_size[1] - bbox[1]:
                 #TODO:Make sure that the masks are correctly annotated
-            print('Adding a mask now')
+            # print('Adding a mask now')
             gaussian_k = image_utils.gaussian_kernel((s*2+1,s*2+1), 8, 255)
             sx = max(0, x - s)
             sy = max(0, y - s)
