@@ -11,10 +11,10 @@ class StaticGenerator():
     Data set generator for generating training and test data for fully connected type networks.
     '''
 
-    def __init__(self, base_dir, file_suffix, annotation_file_suffix, test_ratio, validation_ratio, horizontal_flip=False):
+    def __init__(self, base_dir, file_prefix, annotation_file_prefix, test_ratio, validation_ratio, horizontal_flip=False):
         self.base_dir = base_dir
-        self.file_suffix = file_suffix
-        self.annotation_file_suffix = annotation_file_suffix
+        self.file_suffix = file_prefix
+        self.annotation_file_suffix = annotation_file_prefix
         files = os.listdir(base_dir)
         self.dataset_size = len(files)
         # self.read_files(file_suffix, annotation_file_suffix)
@@ -34,13 +34,13 @@ class StaticGenerator():
             im = np.expand_dims(im, -1)
         return im
 
-    def read_files(self, file_prefix, annotation_file_prefix):
+    def read_files(self):
         all_files = os.listdir(self.base_dir)
-        input_img = [fn for fn in all_files if fn.startswith(file_prefix)]
+        input_img = [fn for fn in all_files if fn.startswith(self.file_prefix)]
         input_img.sort(key=lambda x: self.filename_to_id(x))
         self.input_img = [self.open_image(c) for c in input_img]
 
-        masks = [fn for fn in all_files if fn.startswith(annotation_file_prefix)]
+        masks = [fn for fn in all_files if fn.startswith(self.annotation_file_prefix)]
         masks.sort(key=lambda x: self.filename_to_id(x))
         self.masks = [self.open_image(c) for c in masks]
         # Asset that they are same and in same order!!
