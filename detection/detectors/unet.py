@@ -23,8 +23,8 @@ def UNet(input_shape, upsample_mode='SIMPLE', net_scaling=None, gaussian_noise=0
         if net_scaling is not None:
             pp_in_layer = layers.AvgPool2D(net_scaling)(pp_in_layer)
 
-        pp_in_layer = layers.GaussianNoise(gaussian_noise)(pp_in_layer)
-        pp_in_layer = layers.BatchNormalization()(pp_in_layer)
+        # pp_in_layer = layers.GaussianNoise(gaussian_noise)(pp_in_layer)
+        # pp_in_layer = layers.BatchNormalization()(pp_in_layer)
 
         c1 = layers.Conv2D(8, (3, 3), activation='relu', padding='same')(pp_in_layer)
         c1 = layers.Conv2D(8, (3, 3), activation='relu', padding='same')(c1)
