@@ -74,8 +74,8 @@ def UNet(input_shape, upsample_mode='SIMPLE', net_scaling=None, gaussian_noise=0
         c9 = layers.Conv2D(8, (3, 3), activation='relu', padding='same')(c9)
 
         d = layers.Conv2D(1, (1, 1), activation='sigmoid')(c9)
-        d = layers.Cropping2D((edge_crop,edge_crop))(d)
-        d = layers.ZeroPadding2D((edge_crop, edge_crop))(d)
+        # d = layers.Cropping2D((edge_crop,edge_crop))(d)
+        # d = layers.ZeroPadding2D((edge_crop, edge_crop))(d)
         if net_scaling is not None:
             d = layers.UpSampling2D(net_scaling)(d)
 
