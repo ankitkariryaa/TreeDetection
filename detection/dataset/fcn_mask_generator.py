@@ -33,10 +33,28 @@ class FCNMaskGenerator(DatasetGenerator):
                 response_maps.extend(img_masks)
                 if len(image_batch) == batch_size:
                     break
-
-            image_batch = np.array(image_batch)
             # logger.info('image batch shape:{}, dataset:{}, batch_size:{}', image_batch.shape, dataset, batch_size)
             yield (np.array(image_batch), np.array(response_maps))
+
+    def fcn_sequential_data_generator(self, batch_size, patch_size, no_classes, dataset='training', sampling_type='random'):
+        idx = self.dataset_idx(dataset)
+        image_batch = []
+        response_maps = []
+        for frame_id in idx:
+            frame = self.dataset.all_frames[frame_id]
+            img_patches = frame.sequential_patches(patch_size, patch_size)# (patch_size[0]//2, patch_size[1]//2))
+            print(len(img_patches))
+            for patch in img_patches:
+                img = patch.get_img()
+                image_batch.append(img)
+                img_mask = patch.ann_mask2()
+                response_maps.append(img_mask)
+                if len(image_batch) == batch_size:
+                    ib = np.array(image_batch)
+                    rm = np.array(response_maps)
+                    image_batch = []
+                    response_maps = []
+                    yield (ib, rm)
 
 
 if __name__ == '__main__':

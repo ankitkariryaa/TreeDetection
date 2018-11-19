@@ -43,10 +43,10 @@ class TreeDataset():
                 else:
                     tree_size = 4
                 # Convert from metres to pixels and convert to radius from diameter
-                tree_size *= 3
+                tree_size *= 2.5
                 tree_size = min(tree_size, 60)
                 # Is the annotation correctly initialized???
-                annotations.append((ann[0], ann[1], tree_size))
+                annotations.append((ann[0], ann[1], int(tree_size)))
                 #print((ann[0], ann[1], tree_size))
             frame_info = FrameInfo(self.base_dir, fn, (0, 0, image.shape[0], image.shape[1]), annotations)
             frame_infos.append(frame_info)

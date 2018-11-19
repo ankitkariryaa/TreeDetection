@@ -54,8 +54,8 @@ class StaticGenerator():
         '''
         Splits the dataset into training, testing and validation sets.
         '''
-        idx = range(self.dataset_size)
-        idx = np.random.permutation(idx)
+        all_files = os.listdir(self.base_dir)
+        idx = [fn for fn in all_files if fn.startswith(self.file_prefix)]
         training_data_size = int(self.dataset_size * (1 - test_ratio))
         validation_size = int(training_data_size * validation_ratio)
         self.validation_idx = idx[:validation_size]
@@ -70,14 +70,12 @@ class StaticGenerator():
         while True:
             image_batch = []
             response_maps = []
-            while True:
-                idx = np.random.choice(dt, replace=False)
-                input_img = self.open_image('{}_{}.png'.format(self.file_prefix, idx))
-                mask = self.open_image('{}_{}.png'.format(self.annotation_file_prefix, idx))
+            idx = np.random.choice(dt, self.batch_size, replace=False)
+            for im in idx:
+                input_img = self.open_image(im)
+                mask = self.open_image(im.replace(self.file_prefix, self.annotation_file_prefix))
                 image_batch.append(input_img)
                 response_maps.append(mask)
-                if len(image_batch) == self.batch_size:
-                    break
             yield np.array(image_batch), np.array(response_maps)
 
     def dataset_idx(self, dataset):

@@ -19,7 +19,7 @@ class FrameInfo():
     Contains annotated image information such as image data, annotations etc.
     '''
 
-    def __init__(self, base_dir, img_id, roi, annotations, bbox=(15, 15)):
+    def __init__(self, base_dir, img_id, roi, annotations):
         self.base_dir = base_dir
         self.img_id = img_id
         # add buffer to region of interest ...
@@ -31,10 +31,11 @@ class FrameInfo():
         self.full_img = np.transpose(read_image, (1, 2, 0)).astype(np.uint8)
         self.img_data = self.full_img
         self.annotations = annotations
+        self.annotations_mask = self.annotated_img(mask_only=True)
         self.all_seq_patches = []
 
-    def annotated_img(self):
-        annotated_img = get_annotated_img(self.img_data, self.annotations)
+    def annotated_img(self, mask_only=True, shape='circle', size=-1):
+        annotated_img = get_annotated_img(self.img_data, self.annotations, mask_only, shape, size)
         return annotated_img
 
     def get_random_patches(self, patch_size, no_of_patches):
@@ -78,6 +79,7 @@ class Patch(object):
         self.startx = startx
         self.starty = starty
         self.patch_size = patch_size
+        self.mask_type = 'circle'  # 'rectangle' 'gaussian'
         self.__find_annotations()
 
     def get_img(self):
@@ -92,7 +94,7 @@ class Patch(object):
         annotations = []
         for ann in self.frame_info.annotations:
             row, col, size = ann
-            row_start,col_start, row_end, col_end = row - size, col - size, row + size, col + size
+            row_start, col_start, row_end, col_end = row - size, col - size, row + size, col + size
             if self.startx < row_start and self.starty < col_start and self.startx + self.patch_size[0] > row_end and self.starty + self.patch_size[1] > col_end:
                 annotations.append(ann)
         self.ann_relative = annotations
@@ -106,18 +108,27 @@ class Patch(object):
         img_mask = np.zeros(self.patch_size + (no_classes,))
         print('Annotations in patch:',len(self.annotations))
         for ann in self.annotations:
-            x, y, s = ann
-            i = s if no_classes > 1 else 0
-            #TODO: At the moment we elimate the annotations on the edge of the image. We should include those as well.
-            # if bbox[0] < x < self.patch_size[0] - bbox[0] and bbox[1] < y < self.patch_size[1] - bbox[1]:
-                #TODO:Make sure that the masks are correctly annotated
-            # print('Adding a mask now')
-            gaussian_k = image_utils.gaussian_kernel((s*2+1,s*2+1), 8, 255)
-            sx = max(0, x - s)
-            sy = max(0, y - s)
-            ex = min(self.patch_size[0] - 1, x + s)
-            ey = min(self.patch_size[1] - 1, y + s)
-            m = np.maximum(img_mask[sx:ex + 1, sy:ey + 1, i], gaussian_k)
-            img_mask[sx:ex + 1, sy:ey + 1, i] = 1 #m
+            x, y, s = ann  # s here is size and not the number of classes. Add support for multiple classes in future.
+            mask_max = 255
+            mask_size = -1  # -1 means fill completely
+            if self.mask_type == 'circle':
+                cv2.circle(img_mask, (y, x), ann[2], mask_max, mask_size)  # x,y are inverted in cv2
+            elif self.mask_type == 'rectangle':
+                bbox_size = (int(ann[2]), int(ann[2]))
+                cv2.rectangle(img_mask, (y - bbox_size[0], x - bbox_size[0]), (y + bbox_size[1], x + bbox_size[1]),
+                              mask_max, mask_size)  # x,y are inverted in cv2
+            else:  # 'gaussian'
+                i = 0  # s if no_classes > 1 else 0
+                gaussian_k = image_utils.gaussian_kernel((s*2+1, s*2+1), 8, mask_max)
+                sx = max(0, x - s)
+                sy = max(0, y - s)
+                ex = min(self.patch_size[0] - 1, x + s)
+                ey = min(self.patch_size[1] - 1, y + s)
+                m = np.maximum(img_mask[sx:ex + 1, sy:ey + 1, i], gaussian_k)
+                img_mask[sx:ex + 1, sy:ey + 1, i] = m
         return img_mask
 
+    def ann_mask2(self):
+        img_data = self.frame_info.annotations_mask
+        img_patch = img_data[self.startx:self.startx + self.patch_size[1], self.starty:self.starty + self.patch_size[0]]
+        return img_patch

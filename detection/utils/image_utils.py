@@ -43,14 +43,23 @@ def inter_over_union(bounds1, bounds2):
     r2 = Rectangle(bounds2)
     return r1.intersection(r2) / r1.union(r2)
 
-
-def get_annotated_img(img, annotations, color=(255, 0, 0)):
-    annotated_img = np.array(img)
+#TODO: Add support for multiple classes
+def get_annotated_img(img, annotations, mask=False, shape='rectangle', color=(255, 0, 0), size=-1):
+    if mask:
+        annotated_img = np.zeros((img.shape[0], img.shape[1]))
+        color = 255
+    else:
+        annotated_img = np.array(img.copy())
     for ann in annotations:
-        bbox_size = (int(ann[2]), int(ann[2]))
-        x, y = map(int, ann[0:2])
-        cv2.rectangle(annotated_img, (x - bbox_size[0], y - bbox_size[1]), (x + bbox_size[0], y + bbox_size[1]),
-                      color, 2)
+        #Info: In opencv the coordinate system is different from row, col system here row is y and col is x!!!
+        #Question; Does it start from same point??
+        y, x = map(int, ann[0:2])
+        if shape == 'circle':
+            cv2.circle(annotated_img, (x, y), ann[2], color, size)
+        else:
+            bbox_size = (int(ann[2]), int(ann[2]))
+            cv2.rectangle(annotated_img, (x - bbox_size[0], y - bbox_size[0]), (x + bbox_size[1], y + bbox_size[1]), color, size)
+
     return annotated_img
 
 
